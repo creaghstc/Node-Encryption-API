@@ -25,5 +25,26 @@ module.exports = {
         break;
       }
     } //end while loop
-  } //end GenerateKeyStream
+  }, //end GenerateKeyStream
+
+  encrypt: function(message,keyStream){
+    let keyPlace = 0;
+    let result = "";
+    message = message.split(" ");
+
+    for(let i = 0; i < message.length; i++){
+      for(let j = 0; j <message[i].length; j++){
+        let bit = parseInt(message[i][j]) + parseInt(keyStream[keyPlace]);
+        if(bit % 2 === 0){
+          result += "0";
+        }
+        else{
+          result += "1";
+        }
+        keyPlace ++;
+      }
+      result += " ";
+    }
+    return result;
+  }
 } // end exports
