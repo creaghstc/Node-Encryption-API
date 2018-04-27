@@ -1,8 +1,8 @@
 const LFSR = require('./LFSR');
+const express = require('express');
 
-let message = "Hello World";
-let messageBin = "";
-// let stdin = process.openStdin();
+let app = express();
+let result = {};
 
 function toBinary(text) {
   let result = "";
@@ -22,17 +22,33 @@ function binaryToString(binary) {
   return result;
 }
 
-let messageSize = toBinary(message).length;
-let binaryMessage = toBinary(message);
+app.get("/encryptBinary=:binary", function(req, res) {
+  result.Method = req.method;
+  let bin = req.params.binary;
+  let size = bin.length;
+  result.MessageBinary = bin;
+  let Ebin = LFSR.encrypt(bin, LFSR.GenerateKeyStream("01100100", [8, 6, 5, 4], size));
+  result.EncryptedBinary = Ebin;
+  result["Date(UTC)"] = new Date();
+  console.log(result);
+  console.log("-----------------------------------------------------------")
+  res.json(result);
+});
 
-let key = LFSR.GenerateKeyStream("01100100", [8, 6, 5, 4], messageSize);
-let cipherText = LFSR.encrypt(binaryMessage, key);
+app.get("/encryptString=:str", function(req, res) {
+  result.Method = req.method;
+  result.Message = req.params.str;
+  let bin = toBinary(req.params.str);
+  let size = bin.length;
+  result.MessageBinary = bin;
+  let Ebin = LFSR.encrypt(bin, LFSR.GenerateKeyStream("01100100", [8, 6, 5, 4], size));
+  result.EncryptedBinary = Ebin;
+  result["Date(UTC)"] = new Date();
+  console.log(result);
+  console.log("-----------------------------------------------------------")
+  res.json(result);
+});
 
-console.log("Encrypting 'Hello World'");
-console.log("Un altered binary: " + binaryMessage);
-console.log("------------------------------------------------------------------------------");
-console.log("Encrypted Text: " + binaryToString(cipherText));
-console.log("Encrypted Binary: " + cipherText);
-console.log("------------------------------------------------------------------------------");
-console.log("Decrypted Text: " + binaryToString(LFSR.encrypt(cipherText, key)));
-// console.log(key);
+var server = app.listen(8001, "192.168.178.30", function() {
+  console.log("Listening on:", server.address());
+});
